@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vánoční odpočet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: radial-gradient(circle, #2c0101 0%, #000000 100%);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Sněžení */
+        .snowflake {
+            color: #fff;
+            font-size: 1.2em;
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 5px rgba(255,255,255,1);
+            position: fixed;
+            top: -10%;
+            z-index: 1;
+            user-select: none;
+            cursor: default;
+            animation: snowfall linear infinite;
+        }
+
+        @keyframes snowfall {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* Hlavní bublina */
+        .bubble {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(255,255,255,0.2);
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .timer-text {
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .label {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            color: #ffcccc;
+        }
+
+        #music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hudba na pozadí -->
+    <audio id="bgMusic" loop>
+        <source src="timer.mp3" type="audio/mpeg">
+        Váš prohlížeč nepodporuje audio element.
+    </audio>
+
+    <div id="music-control" onclick="toggleMusic()">
+        🎵 <span id="music-status">Přehrát hudbu</span>
+    </div>
+
+    <div class="bubble">
+        <div class="label">Vánoce budou za:</div>
+        <div id="countdown" class="timer-text">00:00:00:00</div>
+        <div class="mt-4 text-red-300 italic">Šťastné a veselé!</div>
+    </div>
+
+    <script>
+        // Cílové datum: 24. prosinec v 18:00:00
+        const targetDate = new Date();
+        targetDate.setMonth(11); // Prosinec (měsíce jsou 0-11)
+        targetDate.setDate(24);
+        targetDate.setHours(18, 0, 0, 0);
+
+        // Pokud je už po 18:00 24. prosince, nastavíme odpočet na příští rok
+        if (new Date() > targetDate) {
+            targetDate.setFullYear(targetDate.getFullYear() + 1);
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate.getTime() - now;
+
+            if (distance < 0) {
+                window.location.href = "christmashere.html";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = 
+                `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+        }
+
+        // Aktualizace každou sekundu
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Funkce pro hudbu (prohlížeče blokují autoplay bez interakce)
+        function toggleMusic() {
+            const audio = document.getElementById("bgMusic");
+            const status = document.getElementById("music-status");
+            if (audio.paused) {
+                audio.play();
+                status.innerText = "Pauza";
+            } else {
+                audio.pause();
+                status.innerText = "Přehrát";
+            }
+        }
+
+        // Generování sněhu
+        function createSnowflakes() {
+            const container = document.body;
+            for (let i = 0; i < 50; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.innerText = '❄';
+                flake.style.left = Math.random() * 100 + 'vw';
+                flake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                flake.style.opacity = Math.random();
+                flake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                container.appendChild(flake);
+            }
+        }
+        createSnowflakes();
+    </script>
+</body>
+</html>
